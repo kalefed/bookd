@@ -24,7 +24,8 @@ services:
     depends_on:
       - db
     volumes:
-      - ./server/src:/app/src:ro # Production: remove for prod
+      - ./server/src:/usr/src/app/src
+      - /usr/src/app/node_modules
 
   client:
     build:

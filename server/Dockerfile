@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+COPY prisma ./prisma
+RUN npx prisma generate
+
 # Install the application dependencies
 RUN npm install
 
@@ -20,4 +23,6 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["node", "dist/main"]
+# CMD ["node", "dist/main"]
+CMD ["npm", "run", "start:dev"] 
+# Dev command
