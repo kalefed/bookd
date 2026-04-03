@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider     = "prisma-client"
   output       = "../src/generated/prisma"
@@ -14,17 +9,96 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  name     String?
+  password String
+
+  userBooks UserBook[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model Book {
+  id       Int      @id @default(autoincrement())
+  title String
+  author String
+  pages Int
+  coverImageUrl String
+
+  // Relationships
+  userBook UserBook[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model UserBook {
+  id       Int      @id @default(autoincrement())
+  review String?
+  favorite      Boolean    @default(false)
+
+  // Relationships
+  readThroughs ReadThrough[]
+  userGenres UserGenre[]
+
+  // 1-to-many user to userBooks
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  // 1-to-many Book to userBooks
+  bookId Int
+  Book Book @relation(fields: [bookId], references: [id])
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+enum ReadingStatus {
+  TBR
+  CURRENTLY_READING
+  DNF
+  READ
+}
+
+model ReadThrough {
+  id       Int      @id @default(autoincrement())
+  startDate  DateTime?
+  finishDate DateTime?
+  rating     Int?
+  status     ReadingStatus  @default(TBR)
+  createdAt  DateTime       @default(now())
+
+  // Relationships
+  sessions   ReadingSession[]
+
+  // 1-to-many userBook to readthrough
+  userBookId Int
+  userBook UserBook @relation(fields: [userBookId], references: [id])
+
+}
+
+model ReadingSession {
+  id Int @id @default(autoincrement())
+
+  date         DateTime
+  pagesRead    Int?
+  percentRead  Float?
+  notes        String?
+
+  // Relationships
+  // 1-to-many readthroughs to reading sessions
+  readThroughId Int
+  readThrough ReadThrough @relation(fields: [readThroughId], references: [id])
+
+  createdAt    DateTime @default(now())
+}
+
+model UserGenre {
+  id     Int      @id @default(autoincrement())
+  name   String    
+
+  // Implicit many-tom-many
+  userBooks UserBook[]
 }
